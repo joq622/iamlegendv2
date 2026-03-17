@@ -1,3 +1,17 @@
+/*****************************************************************************
+ *                                                                           *
+ *                     Developed By STANY TZ                                 *
+ *                                                                           *
+ *  🌐  GitHub   : https://github.com/Stanytz378                             *
+ *  ▶️  YouTube  : https://youtube.com/@STANYTZ                              *
+ *  💬  WhatsApp : https://whatsapp.com/channel/0029Vb7fzu4EwEjmsD4Tzs1p     *
+ *                                                                           *
+ *    © 2026 STANY TZ. All rights reserved.                                 *
+ *                                                                           *
+ *    Description: ESLint configuration for ᴵ ᴬᴹ ᴸᴱᴳᴱᴺᴰ WhatsApp Bot        *
+ *                                                                           *
+ ***************************************************************************/
+
 export default [
   { ignores: ['node_modules/**', 'dist/**', 'coverage/**', 'temp/**'] },
   {

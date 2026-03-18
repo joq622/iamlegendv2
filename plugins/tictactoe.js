@@ -8,11 +8,11 @@
  *                                                                           *
  *    © 2026 STANY TZ. All rights reserved.                                 *
  *                                                                           *
- *    Description: Tic-Tac-Toe game plugin for iamlegendv2 WhatsApp Bot      *
+ *    Description: Tic-Tac-Toe game plugin for iamlegendv2 WhatsApp Bot     *
  *                                                                           *
  ***************************************************************************/
 
-// Game state storage (in-memory, can be moved to database if needed)
+// Game state storage (in-memory)
 const games = new Map();
 
 function createBoard() {
@@ -44,6 +44,80 @@ function checkWinner(board) {
 
 function isBoardFull(board) {
     return board.every(cell => cell !== '⬜');
+}
+
+/**
+ * Handle a move in an ongoing Tic-Tac-Toe game.
+ * Called from messageHandler when a number (1-9) is sent.
+ * @returns {boolean} - true if move was processed (game exists and turn correct)
+ */
+export async function handleTicTacToeMove(sock, chatId, senderId, move, context) {
+    const { channelInfo } = context;
+    const game = games.get(chatId);
+    if (!game || !game.active) return false;
+
+    // Check if it's the player's turn
+    if (game.turn !== senderId) return false;
+
+    // Check if sender is one of the players
+    if (!game.players.includes(senderId)) return false;
+
+    const moveNum = parseInt(move);
+    if (isNaN(moveNum) || moveNum < 1 || moveNum > 9) return false;
+
+    const index = moveNum - 1;
+    if (game.board[index] !== '⬜') {
+        await sock.sendMessage(chatId, {
+            text: '❌ That cell is already taken! Choose another.',
+            ...channelInfo
+        });
+        return true; // consumed but move invalid
+    }
+
+    // Place mark
+    const mark = game.players[0] === senderId ? '❌' : '⭕';
+    game.board[index] = mark;
+
+    // Check winner
+    const winner = checkWinner(game.board);
+    if (winner) {
+        const winnerJid = game.players.find(p => (p === senderId) ? mark === '❌' : mark === '⭕');
+        const winnerName = winnerJid.split('@')[0];
+        const boardStr = renderBoard(game.board);
+        await sock.sendMessage(chatId, {
+            text: `🎉 *Game Over!*\n\n` +
+                  `${boardStr}\n\n` +
+                  `🏆 @${winnerName} wins! 🏆`,
+            mentions: [winnerJid],
+            ...channelInfo
+        });
+        games.delete(chatId);
+        return true;
+    }
+
+    // Check draw
+    if (isBoardFull(game.board)) {
+        const boardStr = renderBoard(game.board);
+        await sock.sendMessage(chatId, {
+            text: `🤝 *It's a draw!*\n\n${boardStr}`,
+            ...channelInfo
+        });
+        games.delete(chatId);
+        return true;
+    }
+
+    // Switch turn
+    game.turn = game.players.find(p => p !== senderId);
+    const nextPlayer = game.turn.split('@')[0];
+    const boardStr = renderBoard(game.board);
+    await sock.sendMessage(chatId, {
+        text: `✅ Move accepted.\n\n${boardStr}\n\n` +
+              `Now it's @${nextPlayer}'s turn.`,
+        mentions: [game.turn],
+        ...channelInfo
+    });
+
+    return true;
 }
 
 export default {
@@ -100,7 +174,7 @@ export default {
         games.set(chatId, {
             board: createBoard(),
             players: [senderId, opponent],
-            turn: senderId, // first player who started
+            turn: senderId,
             active: true
         });
 
@@ -117,77 +191,12 @@ export default {
         }, { quoted: message });
     },
 
-    // Handle moves – this is called from messageHandler when a number is sent
+    // For backward compatibility, keep handleMove as a method (optional)
     async handleMove(sock, chatId, senderId, move, context) {
-        const { channelInfo } = context;
-        const game = games.get(chatId);
-        if (!game || !game.active) return false;
-
-        // Check if it's the player's turn
-        if (game.turn !== senderId) return false;
-
-        // Check if sender is one of the players
-        if (!game.players.includes(senderId)) return false;
-
-        const moveNum = parseInt(move);
-        if (isNaN(moveNum) || moveNum < 1 || moveNum > 9) return false;
-
-        const index = moveNum - 1;
-        if (game.board[index] !== '⬜') {
-            await sock.sendMessage(chatId, {
-                text: '❌ That cell is already taken! Choose another.',
-                ...channelInfo
-            });
-            return true; // consumed but move invalid
-        }
-
-        // Place mark
-        const mark = game.players[0] === senderId ? '❌' : '⭕';
-        game.board[index] = mark;
-
-        // Check winner
-        const winner = checkWinner(game.board);
-        if (winner) {
-            const winnerJid = game.players.find(p => (p === senderId) ? mark === '❌' : mark === '⭕');
-            const winnerName = winnerJid.split('@')[0];
-            const boardStr = renderBoard(game.board);
-            await sock.sendMessage(chatId, {
-                text: `🎉 *Game Over!*\n\n` +
-                      `${boardStr}\n\n` +
-                      `🏆 @${winnerName} wins! 🏆`,
-                mentions: [winnerJid],
-                ...channelInfo
-            });
-            games.delete(chatId);
-            return true;
-        }
-
-        // Check draw
-        if (isBoardFull(game.board)) {
-            const boardStr = renderBoard(game.board);
-            await sock.sendMessage(chatId, {
-                text: `🤝 *It's a draw!*\n\n${boardStr}`,
-                ...channelInfo
-            });
-            games.delete(chatId);
-            return true;
-        }
-
-        // Switch turn
-        game.turn = game.players.find(p => p !== senderId);
-        const nextPlayer = game.turn.split('@')[0];
-        const boardStr = renderBoard(game.board);
-        await sock.sendMessage(chatId, {
-            text: `✅ Move accepted.\n\n${boardStr}\n\n` +
-                  `Now it's @${nextPlayer}'s turn.`,
-            mentions: [game.turn],
-            ...channelInfo
-        });
-
-        return true;
+        return handleTicTacToeMove(sock, chatId, senderId, move, context);
     },
 
-    // Reset/delete game (for debugging or admin)
+    // Reset game (admin use)
     async resetGame(chatId) {
         games.delete(chatId);
     }

@@ -107,3 +107,71 @@ cd IAMLEGEND
 npm install
 cp sample.env .env
 npm start
+
+🔐 Session Setup
+SESSION_ID=your_session_id
+OWNER_NUMBER=255XXXXXXXXX
+
+⚙️ Configuration
+BOT_NAME=IAMLEGEND
+OWNER_NUMBER=255XXXXXXXXX
+PREFIXES=.,!,/
+COMMAND_MODE=public
+TIMEZONE=Africa/Nairobi
+
+🖥️ VPS (Linux Server)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install nodejs git ffmpeg
+git clone https://github.com/Stanytz378/IAMLEGEND.git
+cd IAMLEGEND
+npm install
+cp sample.env .env
+npm start
+
+📱 Termux (Android)
+pkg update && pkg upgrade
+pkg install git nodejs ffmpeg
+git clone https://github.com/Stanytz378/IAMLEGEND.git
+cd IAMLEGEND
+npm install
+cp sample.env .env
+npm start
+
+🐳 Docker
+docker build -t iamlegend .
+docker run -d -p 5000:5000 iamlegend
+
+🪟 Windows (WSL)
+sudo apt install nodejs git
+git clone https://github.com/Stanytz378/IAMLEGEND.git
+cd IAMLEGEND
+npm install
+npm start
+
+🔌 Plugin Example
+export default {
+  command: 'test',
+  handler: async (sock, msg) => {
+    await sock.sendMessage(msg.key.remoteJid, { text: "Working!" });
+  }
+};
+
+⚠️ Disclaimer
+
+Use responsibly. Not affiliated with WhatsApp.
+
+⸻
+
+❤️ Support
+
+⭐ Star the repo
+🔁 Fork & Deploy
+📢 Join Channel
+<div align="center">
+<a href="https://whatsapp.com/channel/0029Vb7fzu4EwEjmsD4Tzs1p">
+  <img src="https://img.shields.io/badge/Join%20WhatsApp%20Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" height="45"/>
+</a>
+</div>
+<div align="center">
+</div>
+

@@ -14,6 +14,7 @@
  ***************************************************************************/
 
 import store from '../lib/lightweight_store.js';
+import isAdmin from '../lib/isAdmin.js';
 import isOwnerOrSudo from '../lib/isOwner.js';
 
 const SETTING_KEY = 'antistatusmention';

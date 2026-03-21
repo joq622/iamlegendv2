@@ -61,9 +61,9 @@ export default {
                 text: `❌ *Please provide a number to add!*
 
 *Usage:*
-• \`.add 923051234567\`
-• \`.add +923051234567\`
-• \`.add 92 305 1234567\`
+• \`.add 255618558502\`
+• \`.add +255618558502\`
+• \`.add 255 618558502\`
 • Reply to a vcard with \`.add\`
 • Reply to a message with \`.add\``,
                 ...channelInfo
@@ -125,15 +125,15 @@ export default {
 };
 /*****************************************************************************
  *                                                                           *
- *                     Developed By Qasim Ali                                *
+ *                     Developed By STANY TZ                                 *
  *                                                                           *
- *  🌐  GitHub   : https://github.com/GlobalTechInfo                         *
- *  ▶️  YouTube  : https://youtube.com/@GlobalTechInfo                       *
- *  💬  WhatsApp : https://whatsapp.com/channel/0029VagJIAr3bbVBCpEkAM07     *
+ *  🌐  GitHub   : https://github.com/Stanytz378                             *
+ *  ▶️  YouTube  : https://youtube.com/@STANYTZ                              *
+ *  💬  WhatsApp : https://whatsapp.com/channel/0029Vb7fzu4EwEjmsD4Tzs1p     *
  *                                                                           *
- *    © 2026 GlobalTechInfo. All rights reserved.                            *
+ *    © 2026 STANY TZ. All rights reserved.                                 *
  *                                                                           *
- *    Description: This file is part of the MEGA-MD Project.                 *
- *                 Unauthorized copying or distribution is prohibited.       *
+ *    Description: This file is part of the ᴵ ᴬᴹ ᴸᴱᴳᴱᴺᴰ Project.             *
+ *                 Unauthorized copying or distribution is prohibited.      *
  *                                                                           *
- *****************************************************************************/
+ ***************************************************************************/

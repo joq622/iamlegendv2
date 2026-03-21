@@ -93,8 +93,8 @@ function formatCommands(categories, prefix) {
 // ═══════════════════════════════════════════════════════════
 
 function renderCategory(cat, prefix) {
-    let block = `       🫥${cat.category}\n`;
-    block += `          < ${cat.count} COMMANDS >\n\n`;
+    let block = `          •••${cat.category}\n`;
+    block += `              [ ${cat.count} COMMANDS ]\n\n`;
     for (const cmd of cat.commands) {
        
          block += `  ├➣ *${cmd.name}*\n`;
@@ -141,10 +141,10 @@ const menuStyles = [
             t += `│ ${timeSign} ${greeting}\n`;
             t += `│ ⏱ ${info.time}  •  ${chatType}\n`;
             t += `│ ${quote}\n`;
-            t += `├──────────────┤\n`;
+            t += `├──────────────\n`;
             t += `│ Owner: ${info.owner}\n`;
             t += `│ Total: ${info.total} commands\n`;
-            t += `└──────────────┘\n\n`;
+            t += `└──────────────\n\n`;
             for (const cat of categories) t += renderCategory(cat, prefix);
             t += `───────────────\n`;
             t += `    ${info.bot} v${info.version}\n`;
@@ -158,7 +158,7 @@ const menuStyles = [
             t += `│ ${timeSign} ${greeting}\n`;
             t += `│ ⏱ ${info.time}  •  ${chatType}\n`;
             t += `│ ${quote}\n`;
-            t += `├──────────────┤\n`;
+            t += `├──────────────\n`;
             t += `│ Owner: ${info.owner}\n`;
             t += `│ Total: ${info.total} commands\n`;
             t += `╰──────────────╯\n\n`;
@@ -178,7 +178,7 @@ const menuStyles = [
             t += `├──────────────┤\n`;
             t += `│ Owner: ${info.owner}\n`;
             t += `│ Total: ${info.total} commands\n`;
-            t += `└──────────────┘\n\n`;
+            t += `└──────────────\n\n`;
             for (const cat of categories) t += renderCategory(cat, prefix);
             t += `───────────────\n`;
             t += `    ${info.bot} v${info.version}\n`;
@@ -246,11 +246,11 @@ const menuStyles = [
         render: ({ greeting, quote, info, categories, prefix, timeSign, chatType }) => {
             let t = `╭──────────────╮\n`;
             t += `│    IAMLEGEND    \n`;
-            t += `├──────────────┤\n`;
+            t += `├──────────────\n`;
             t += `│ ${timeSign} ${greeting}\n`;
             t += `│ ⏱ ${info.time}  •  ${chatType}\n`;
             t += `│ ${quote}\n`;
-            t += `├──────────────┤\n`;
+            t += `├──────────────\n`;
             t += `│ Owner: ${info.owner}\n`;
             t += `│ Total: ${info.total} commands\n`;
             t += `╰──────────────╯\n\n`;
@@ -299,11 +299,11 @@ const menuStyles = [
         render: ({ greeting, quote, info, categories, prefix, timeSign, chatType }) => {
             let t = `╭───────────────╮\n`;
             t += `│      IAMLEGEND      │\n`;
-            t += `├───────────────┤\n`;
+            t += `├───────────────\n`;
             t += `│ ${timeSign} ${greeting}\n`;
             t += `│ ⏱ ${info.time}  •  ${chatType}\n`;
             t += `│ ${quote}\n`;
-            t += `├───────────────┤\n`;
+            t += `├───────────────\n`;
             t += `│ Owner: ${info.owner}\n`;
             t += `│ Total: ${info.total} commands\n`;
             t += `╰───────────────╯\n\n`;
@@ -333,7 +333,7 @@ const menuStyles = [
     {
         name: 'Fresh Line #2',
         render: ({ greeting, quote, info, categories, prefix, timeSign, chatType }) => {
-            let t = `───── IAMLEGEND ─────\n\n`;
+            let t = `----------- IAMLEGEND ----------\n\n`;
             t += `${timeSign} ${greeting}\n`;
             t += `⏱ ${info.time}  •  ${chatType}\n`;
             t += `${quote}\n\n`;

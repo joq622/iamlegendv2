@@ -15,7 +15,7 @@ import path from 'path';
 import fs from 'fs';
 
 // ═══════════════════════════════════════════════════════════
-// 🕐 TIME & GREETING (ENGLISH ONLY)
+// 🕐 TIME & GREETING
 // ═══════════════════════════════════════════════════════════
 
 function getTimePeriod() {
@@ -28,10 +28,10 @@ function getTimePeriod() {
 
 function getGreeting(period, name) {
     const greetings = {
-        morning: [`Good morning, ${name}`, `Rise and shine, ${name}`, `Morning vibes, ${name}`],
-        afternoon: [`Good afternoon, ${name}`, `Afternoon energy, ${name}`, `Keep going, ${name}`],
-        evening: [`Good evening, ${name}`, `Evening calm, ${name}`, `Unwind time, ${name}`],
-        night: [`Good night, ${name}`, `Late night mode, ${name}`, `Rest well, ${name}`]
+        morning: [`👋 Good morning, ${name}`, `👋 Rise and shine, ${name}`, `👋 Morning vibes, ${name}`],
+        afternoon: [`👋 Good afternoon, ${name}`, `👋 Afternoon energy, ${name}`, `👋 Keep going, ${name}`],
+        evening: [`👋 Good evening, ${name}`, `👋 Evening calm, ${name}`, `👋 Unwind time, ${name}`],
+        night: [`👋 Good night, ${name}`, `👋 Late night mode, ${name}`, `👋 Rest well, ${name}`]
     };
     const list = greetings[period] || greetings.evening;
     return list[Math.floor(Math.random() * list.length)];
@@ -68,262 +68,261 @@ function formatTime() {
     });
 }
 
+function getChatType(context) {
+    const { isGroup, isPrivate } = context;
+    if (isPrivate) return 'Private';
+    if (isGroup) return 'Group';
+    return 'Channel';
+}
+
 // ═══════════════════════════════════════════════════════════
-// 📋 COMMAND FORMATTER (with count per category)
+// 📋 COMMAND FORMATTER
 // ═══════════════════════════════════════════════════════════
 
 function formatCommands(categories, prefix) {
     const result = [];
+    let totalCount = 0;
+    
     for (const [cat, cmds] of categories) {
         const catData = { category: cat, count: cmds.length, commands: [] };
-        const descGroups = new Map();
+        totalCount += cmds.length;
         
         for (const cmdName of cmds) {
             const cmd = commandHandler.commands.get(cmdName);
             if (!cmd) continue;
             const desc = cmd.description || cmd.usage || 'No description';
-            const key = desc.toLowerCase().trim();
-            
-            if (descGroups.has(key)) {
-                descGroups.get(key).push(cmdName);
-            } else {
-                descGroups.set(key, [cmdName]);
-            }
-        }
-        
-        for (const [desc, cmdNames] of descGroups) {
-            catData.commands.push({ names: cmdNames, description: desc });
+            catData.commands.push({ name: cmdName, description: desc });
         }
         result.push(catData);
     }
+    result.total = totalCount;
     return result;
 }
 
 // ═══════════════════════════════════════════════════════════
-// 🎨 20+ THIN & CLEAN STYLES (MODERATE SIGNS • COMMAND COUNT)
+// 🎨 20 PREMIUM STYLES (SHORT BORDERS • SPACING • DARK MODE)
 // ═══════════════════════════════════════════════════════════
 
 const menuStyles = [
-    // 1: Thin Line
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `┌────────────────────>>>\n`;
+    // 1: Premium Box
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        const b = dark ? '┃' : '│';
+        const line = dark ? '━' : '─';
+        let t = `┌${line.repeat(20)}┐\n`;
+        t += `${b}  IAMLEGEND  ${b}\n`;
+        t += `├${line.repeat(20)}┤\n`;
+        t += `${b} ${timeSign} ${greeting} ${b}\n`;
+        t += `${b} ⏱ ${info.time} • ${chatType} ${b}\n`;
+        t += `${b} ${quote} ${b}\n`;
+        t += `├${line.repeat(20)}┤\n`;
+        t += `${b} Owner: ${info.owner} ${b}\n`;
+        t += `${b} Total: ${formattedCategories.total} commands ${b}\n`;
+        t += `└${line.repeat(20)}┘\n\n`;
+        for (const cat of formattedCategories) {
+            t += `      ${cat.category}\n`;
+            t += `      [${cat.count}]\n\n`;
+            for (const cmd of cat.commands) {
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
+            }
+        }
+        return t;
+    }},
+    
+    // 2: Clean Edge
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `╭────────────────╮\n`;
         t += `│ IAMLEGEND │\n`;
-        t += `├────────────────────>>>\n`;
-        t += `│ ${timeSign} ${greeting}\n`;
-        t += `│ ⏱ ${info.time} • v${info.version}\n`;
-        t += `│ ${quote}\n`;
-        t += `├────────────────────>>>\n`;
+        t += `╰────────────────╯\n\n`;
+        t += `${timeSign} ${greeting}\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
+        t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `│\n│ ─ ${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category}\n`;
+            t += `   [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `│   ${cmdList}\n`;
-                t += `│   └> ${cmd.description}\n`;
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
         }
-        t += `│\n└────────────────────•`;
         return t;
     }},
     
-    // 2: Soft Edge
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `╭────────────────────╮\n`;
-        t += `│  IAMLEGEND  │\n`;
-        t += `├────────────────────┤\n`;
-        t += `│ ${timeSign} ${greeting}\n`;
-        t += `│ ⏱ ${info.time} • v${info.version}\n`;
-        t += `│ "${quote}"\n`;
-        t += `├────────────────────┤\n`;
-        for (const cat of formattedCategories) {
-            t += `│\n│ • ${cat.category} [${cat.count}]\n`;
-            for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `│   ${prefix}${name}\n`;
-                    t += `│   └> ${cmd.description}\n`;
-                }
-            }
-        }
-        t += `╰────────────────────╯`;
-        return t;
-    }},
-    
-    // 3: Minimal Dash
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
+    // 3: Minimal Line
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
         let t = `── IAMLEGEND ──\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version}\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
         t += `${quote}\n\n`;
-        t += `── ${info.total} COMMANDS ──\n\n`;
+        t += `Owner: ${info.owner} | Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `  ${cmdList}\n`;
-                t += `  └> ${cmd.description}\n\n`;
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
         }
-        t += `── END ──`;
         return t;
     }},
     
-    // 4: Light Frame
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n`;
+    // 4: Soft Frame
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n`;
         t += ` IAMLEGEND\n`;
-        t += `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n`;
+        t += `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n`;
         t += ` ${timeSign} ${greeting}\n`;
-        t += ` ⏱ ${info.time} • v${info.version}\n`;
+        t += ` ⏱ ${info.time} • ${chatType}\n`;
         t += ` ${quote}\n`;
-        t += `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n`;
+        t += `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n`;
+        t += ` Owner: ${info.owner}\n`;
+        t += ` Total: ${formattedCategories.total}\n`;
+        t += `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n\n`;
         for (const cat of formattedCategories) {
-            t += `\n ${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `   ${prefix}${name}\n`;
-                    t += `   └> ${cmd.description}\n`;
-                }
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
         }
-        t += `\n╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌`;
         return t;
     }},
     
-    // 5: Clean Corner
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `┌──────────────────┐\n`;
-        t += `│ IAMLEGEND │\n`;
-        t += `└──────────────────┘\n`;
+    // 5: Sharp Corner
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `┌──────────────┐\n`;
+        t += `│IAMLEGEND│\n`;
+        t += `└──────────────┘\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version}\n`;
-        t += `${quote}\n\n`;
+        t += `⏱ ${info.time} • ${chatType}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `• ${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category}\n`;
+            t += `   [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `  ${cmdList}\n`;
-                t += `  └> ${cmd.description}\n\n`;
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
         }
         return t;
     }},
     
     // 6: Simple Bar
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
         let t = `│ IAMLEGEND │\n`;
-        t += `─────────────────────\n`;
+        t += `─────────────────\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version}\n`;
-        t += `${quote}\n`;
-        t += `─────────────────────\n\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
+        t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
+        t += `─────────────────\n\n`;
         for (const cat of formattedCategories) {
-            t += `▸ ${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
-        t += `─────────────────────`;
         return t;
     }},
     
     // 7: Elegant Thin
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `╭──────────────────╮\n`;
-        t += `│ IAMLEGEND │\n`;
-        t += `╰──────────────────╯\n\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `╭──────────────╮\n`;
+        t += `│IAMLEGEND│\n`;
+        t += `╰──────────────╯\n\n`;
         t += `${timeSign} ${greeting} • ⏱ ${info.time}\n`;
-        t += `${quote}\n\n`;
-        t += `─────────────────────\n\n`;
+        t += `${chatType} • ${quote}\n\n`;
+        t += `Owner: ${info.owner} | Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `┌ ${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category}\n`;
+            t += `   [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `│ ${cmdList}\n`;
-                t += `└> ${cmd.description}\n\n`;
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
         }
-        t += `─────────────────────`;
         return t;
     }},
     
     // 8: Classic Minimal
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `═════════════════════\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `═════════════════\n`;
         t += `  IAMLEGEND\n`;
-        t += `═════════════════════\n`;
+        t += `═════════════════\n\n`;
         t += `  ${timeSign} ${greeting}\n`;
-        t += `  ⏱ ${info.time} • v${info.version}\n`;
-        t += `  ${quote}\n`;
-        t += `═════════════════════\n\n`;
+        t += `  ⏱ ${info.time} • ${chatType}\n`;
+        t += `  ${quote}\n\n`;
+        t += `  Owner: ${info.owner}\n`;
+        t += `  Total: ${formattedCategories.total}\n\n`;
+        t += `═════════════════\n\n`;
         for (const cat of formattedCategories) {
-            t += `• ${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
-        t += `═════════════════════`;
         return t;
     }},
     
     // 9: Fresh Line
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
         let t = `IAMLEGEND\n`;
-        t += `──────────────\n`;
+        t += `─────────────\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version}\n`;
-        t += `${quote}\n`;
-        t += `──────────────\n\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
+        t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `▸ ${cat.category} [${cat.count}]\n`;
+            t += `   ${cat.category}\n`;
+            t += `   [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `  ${cmdList}\n`;
-                t += `  └> ${cmd.description}\n\n`;
+                t += `   ${prefix}${cmd.name}\n`;
+                t += `   └> ${cmd.description}\n\n`;
             }
         }
         return t;
     }},
     
     // 10: Smooth Edge
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `╌──────────────────╌\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `╌──────────────╌\n`;
         t += `  IAMLEGEND\n`;
-        t += `╌──────────────────╌\n`;
+        t += `╌──────────────╌\n\n`;
         t += `  ${timeSign} ${greeting}\n`;
         t += `  ⏱ ${info.time}\n`;
-        t += `  ${quote}\n`;
-        t += `╌──────────────────╌\n\n`;
+        t += `  ${chatType}\n`;
+        t += `  ${quote}\n\n`;
+        t += `  Owner: ${info.owner}\n`;
+        t += `  Total: ${formattedCategories.total}\n\n`;
+        t += `╌──────────────╌\n\n`;
         for (const cat of formattedCategories) {
-            t += `  ${cat.category} [${cat.count}]\n`;
+            t += `  ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `    ${prefix}${name}\n`;
-                    t += `    └> ${cmd.description}\n`;
-                }
+                t += `    ${prefix}${cmd.name}\n`;
+                t += `    └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
-        t += `╌──────────────────╌`;
         return t;
     }},
     
     // 11: Pure Minimal
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
         let t = `IAMLEGEND\n\n`;
-        t += `${timeSign} ${greeting} • ⏱ ${info.time}\n`;
+        t += `${timeSign} ${greeting}\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
         t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `${cat.category} [${cat.count}]\n`;
+            t += `${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `  ${cmdList}\n`;
+                t += `  ${prefix}${cmd.name}\n`;
                 t += `  └> ${cmd.description}\n\n`;
             }
         }
@@ -331,130 +330,130 @@ const menuStyles = [
     }},
     
     // 12: Clean Box
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `┌─────────────────>\n`;
-        t += `│ IAMLEGEND │\n`;
-        t += `├─────────────────>\n`;
-        t += `│ ${timeSign} ${greeting}\n`;
-        t += `│ ⏱ ${info.time} • v${info.version}\n`;
-        t += `│ ${quote}\n`;
-        t += `├─────────────────>\n`;
-        t += `│ ${info.bot} • ${info.total}\n`;
-        t += `└─────────────────>\n\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `┌─────────────>\n`;
+        t += `│IAMLEGEND│\n`;
+        t += `├─────────────>\n`;
+        t += `│${timeSign} ${greeting}│\n`;
+        t += `│⏱ ${info.time} • ${chatType}│\n`;
+        t += `│${quote}│\n`;
+        t += `├────────────>\n`;
+        t += `│Owner: ${info.owner}│\n`;
+        t += `│Total: ${formattedCategories.total}│\n`;
+        t += `└─────────────>\n\n`;
         for (const cat of formattedCategories) {
-            t += `${cat.category} [${cat.count}]\n`;
+            t += `  ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
+                t += `  ${prefix}${cmd.name}\n`;
+                t += `  └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
         return t;
     }},
     
     // 13: Slim Frame
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `│──────────────────•\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `│─────────────>\n`;
         t += `│  IAMLEGEND  │\n`;
-        t += `│──────────────────•\n`;
-        t += `│ ${timeSign} ${greeting}\n`;
-        t += `│ ⏱ ${info.time}\n`;
-        t += `│ ${quote}\n`;
-        t += `│──────────────────•\n\n`;
+        t += `│────────────•\n`;
+        t += `│${timeSign} ${greeting}│\n`;
+        t += `│⏱ ${info.time}│\n`;
+        t += `│${chatType}│\n`;
+        t += `│${quote}│\n`;
+        t += `│─────────────│\n`;
+        t += `│Owner: ${info.owner}│\n`;
+        t += `│Total: ${formattedCategories.total}│\n`;
+        t += `│─────────────•\n\n`;
         for (const cat of formattedCategories) {
             t += `│ ${cat.category} [${cat.count}]\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `│  ${cmdList}\n`;
+                t += `│  ${prefix}${cmd.name}\n`;
                 t += `│  └> ${cmd.description}\n`;
             }
             t += `│\n`;
         }
-        t += `│──────────────────•`;
+        t += `│─────────────•`;
         return t;
     }},
     
     // 14: Light Border
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `╭────────────────╮\n`;
-        t += `│ IAMLEGEND │\n`;
-        t += `╰────────────────╯\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `╭────────────╮\n`;
+        t += `│IAMLEGEND│\n`;
+        t += `╰────────────╯\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version}\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
         t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `• ${cat.category} [${cat.count}]\n`;
+            t += `  ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
+                t += `  ${prefix}${cmd.name}\n`;
+                t += `  └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
         return t;
     }},
     
     // 15: Ultimate Clean
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
         let t = `IAMLEGEND\n`;
-        t += `───────────────\n`;
+        t += `──────────────\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version} • ${info.total}\n`;
-        t += `${quote}\n`;
-        t += `───────────────\n\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
+        t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
+        t += `──────────────\n\n`;
         for (const cat of formattedCategories) {
-            t += `${cat.category} [${cat.count}]\n`;
+            t += `  ${cat.category}\n`;
+            t += `  [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
+                t += `  ${prefix}${cmd.name}\n`;
+                t += `  └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
-        t += `───────────────`;
+        t += `──────────────`;
         return t;
     }},
     
     // 16: Dot Border
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `••••••••••••••••••••\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `•••••••••••••••\n`;
         t += `  IAMLEGEND\n`;
-        t += `••••••••••••••••••••\n`;
+        t += `•••••••••••••••\n\n`;
         t += `  ${timeSign} ${greeting}\n`;
-        t += `  ⏱ ${info.time} • v${info.version}\n`;
-        t += `  ${quote}\n`;
-        t += `••••••••••••••••••••\n\n`;
+        t += `  ⏱ ${info.time} • ${chatType}\n`;
+        t += `  ${quote}\n\n`;
+        t += `  Owner: ${info.owner}\n`;
+        t += `  Total: ${formattedCategories.total}\n\n`;
+        t += `•••••••••••••••\n\n`;
         for (const cat of formattedCategories) {
-            t += `• ${cat.category} [${cat.count}]\n`;
+            t += `  ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
+                t += `    ${prefix}${cmd.name}\n`;
+                t += `    └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
-        t += `••••••••••••••••••••`;
+        t += `•••••••••••••••`;
         return t;
     }},
     
     // 17: Angle Frame
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `╱──────────────────╲\n`;
-        t += `│  IAMLEGEND  │\n`;
-        t += `╲──────────────────╱\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `•────────────•\n`;
+        t += `│IAMLEGEND│\n`;
+        t += `•────────────•\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version}\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
         t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
         for (const cat of formattedCategories) {
-            t += `▸ ${cat.category} [${cat.count}]\n`;
+            t += `  ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `  ${cmdList}\n`;
+                t += `  ${prefix}${cmd.name}\n`;
                 t += `  └> ${cmd.description}\n\n`;
             }
         }
@@ -462,43 +461,41 @@ const menuStyles = [
     }},
     
     // 18: Double Line
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `═──────────────────═\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `═────────────═\n`;
         t += `  IAMLEGEND\n`;
-        t += `═──────────────────═\n`;
+        t += `═────────────═\n\n`;
         t += `  ${timeSign} ${greeting}\n`;
         t += `  ⏱ ${info.time}\n`;
-        t += `  ${quote}\n`;
-        t += `═──────────────────═\n\n`;
+        t += `  ${chatType}\n`;
+        t += `  ${quote}\n\n`;
+        t += `  Owner: ${info.owner}\n`;
+        t += `  Total: ${formattedCategories.total}\n\n`;
+        t += `═────────────═\n\n`;
         for (const cat of formattedCategories) {
-            t += `  ${cat.category} [${cat.count}]\n`;
+            t += `  ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `    ${prefix}${name}\n`;
-                    t += `    └> ${cmd.description}\n`;
-                }
+                t += `    ${prefix}${cmd.name}\n`;
+                t += `    └> ${cmd.description}\n\n`;
             }
-            t += `\n`;
         }
-        t += `═──────────────────═`;
+        t += `═────────────═`;
         return t;
     }},
     
     // 19: Compact Box
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `┌─ IAMLEGEND\n`;
-        t += `│\n`;
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
+        let t = `┌─ IAMLEGEND\n│\n`;
         t += `│ ${timeSign} ${greeting}\n`;
-        t += `│ ⏱ ${info.time} • v${info.version}\n`;
-        t += `│ ${quote}\n`;
-        t += `│\n`;
+        t += `│ ⏱ ${info.time} • ${chatType}\n`;
+        t += `│ ${quote}\n│\n`;
+        t += `│ Owner: ${info.owner}\n`;
+        t += `│ Total: ${formattedCategories.total}\n│\n`;
         for (const cat of formattedCategories) {
             t += `│ ${cat.category} [${cat.count}]\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `│  ${prefix}${name}\n`;
-                    t += `│  └> ${cmd.description}\n`;
-                }
+                t += `│  ${prefix}${cmd.name}\n`;
+                t += `│  └> ${cmd.description}\n`;
             }
             t += `│\n`;
         }
@@ -506,64 +503,24 @@ const menuStyles = [
         return t;
     }},
     
-    // 20: Minimal Edge
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
+    // 20: Minimal Edge (DARK MODE DEFAULT)
+    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign, chatType, dark }) => {
         let t = `IAMLEGEND\n`;
-        t += `─────────────────────\n`;
-        t += `${timeSign} ${greeting} • ⏱ ${info.time}\n`;
-        t += `v${info.version} • ${info.total} commands\n`;
-        t += `${quote}\n`;
-        t += `─────────────────────\n\n`;
-        for (const cat of formattedCategories) {
-            t += `${cat.category} [${cat.count}]\n`;
-            for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
-            }
-            t += `\n`;
-        }
-        t += `─────────────────────`;
-        return t;
-    }},
-    
-    // 21: Simple Bracket
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `[ IAMLEGEND ]\n\n`;
+        t += `──────────────────\n\n`;
         t += `${timeSign} ${greeting}\n`;
-        t += `⏱ ${info.time} • v${info.version}\n`;
+        t += `⏱ ${info.time} • ${chatType}\n`;
         t += `${quote}\n\n`;
+        t += `Owner: ${info.owner}\n`;
+        t += `Total: ${formattedCategories.total}\n\n`;
+        t += `──────────────────\n\n`;
         for (const cat of formattedCategories) {
-            t += `[ ${cat.category} ] [${cat.count}]\n`;
+            t += `  ${cat.category} [${cat.count}]\n\n`;
             for (const cmd of cat.commands) {
-                for (const name of cmd.names) {
-                    t += `  ${prefix}${name}\n`;
-                    t += `  └> ${cmd.description}\n`;
-                }
-            }
-            t += `\n`;
-        }
-        return t;
-    }},
-    
-    // 22: Clean Divider
-    { render: ({ greeting, quote, info, formattedCategories, prefix, timeSign }) => {
-        let t = `  IAMLEGEND\n`;
-        t += `  ─────────\n\n`;
-        t += `  ${timeSign} ${greeting}\n`;
-        t += `  ⏱ ${info.time} • v${info.version}\n`;
-        t += `  ${quote}\n\n`;
-        t += `  ─────────\n\n`;
-        for (const cat of formattedCategories) {
-            t += `  ${cat.category} [${cat.count}]\n`;
-            for (const cmd of cat.commands) {
-                const cmdList = cmd.names.map(n => `${prefix}${n}`).join(', ');
-                t += `    ${cmdList}\n`;
-                t += `    └> ${cmd.description}\n\n`;
+                t += `  ${prefix}${cmd.name}\n`;
+                t += `  └> ${cmd.description}\n\n`;
             }
         }
-        t += `  ─────────`;
+        t += `──────────────────`;
         return t;
     }}
 ];
@@ -579,10 +536,10 @@ export default {
     aliases: ['help', 'commands', 'h', 'list'],
     category: 'general',
     description: 'Show all commands with descriptions',
-    usage: '.menu [command|style#]',
+    usage: '.menu [command|style#|dark]',
     
     async handler(sock, message, args, context) {
-        const { chatId, channelInfo, senderName } = context;
+        const { chatId, channelInfo, senderName, isGroup, isPrivate } = context;
         const prefix = config.prefixes[0];
         const imagePath = path.join(process.cwd(), 'assets/thumb.png');
         
@@ -626,8 +583,10 @@ export default {
         const greeting = getGreeting(timeInfo.period, userName);
         const quote = await fetchRandomQuote();
         const formattedCategories = formatCommands(commandHandler.categories, prefix);
+        const chatType = getChatType({ isGroup, isPrivate });
         
-        // ─── Style selector: .menu 5 or .menu style5 ───
+        // ─── Dark mode & style selector ───
+        const darkMode = args.some(a => a.toLowerCase() === 'dark');
         const styleArg = args.find(a => /^style?\d+$/i.test(a));
         const styleIndex = styleArg ? parseInt(styleArg.replace(/\D/g,'')) - 1 : -1;
         const style = (styleIndex >= 0 && styleIndex < menuStyles.length) 
@@ -640,9 +599,12 @@ export default {
             quote,
             prefix,
             timeSign: timeInfo.sign,
+            chatType,
+            dark: darkMode,
             formattedCategories,
             info: {
                 bot: config.botName,
+                owner: config.ownerName || 'STANY TZ',
                 prefix: config.prefixes.join(', '),
                 total: commandHandler.commands.size,
                 version: config.version || "6.0.0",

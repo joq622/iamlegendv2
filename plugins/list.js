@@ -65,7 +65,7 @@ function getChatType(context) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 📋 COMMAND FORMATTER (new layout with aliases and description)
+// 📋 COMMAND FORMATTER (includes aliases)
 // ─────────────────────────────────────────────────────────────
 
 function formatCommands(categories, prefix) {
@@ -80,7 +80,8 @@ function formatCommands(categories, prefix) {
             if (!cmd) continue;
             const desc = cmd.description || cmd.usage || 'No description';
             const nameUpper = cmdName.toUpperCase();
-            const aliases = cmd.aliases?.map(a => `${prefix}${a}`).join(', ') || '';
+            // Aliases: store as an array of strings without prefix (for rendering)
+            const aliases = cmd.aliases || [];
             catData.commands.push({ name: nameUpper, description: desc, aliases });
         }
         result.push(catData);
@@ -119,21 +120,21 @@ function getCategoryEmoji(category) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 📄 RENDER A CATEGORY BLOCK (new style)
+// 📄 RENDER A CATEGORY BLOCK (new style with aliases on separate line)
 // ─────────────────────────────────────────────────────────────
 
 function renderCategory(cat, prefix) {
     const emoji = getCategoryEmoji(cat.category);
     let block = `├─────▶ ${emoji} ${cat.category}\n\n`;
     for (const cmd of cat.commands) {
-        let cmdLine = `├➣ *${cmd.name}*`;
-        if (cmd.aliases) {
-            const aliasList = cmd.aliases.split(', ').map(a => a.replace(prefix, '').trim());
-            if (aliasList.length) {
-                cmdLine += ` / *${aliasList.join('* / *')}*`;
-            }
+        // Command name line
+        block += `├➣ *${cmd.name}*\n`;
+        // Aliases line (if any)
+        if (cmd.aliases && cmd.aliases.length) {
+            const aliasLine = cmd.aliases.map(a => `${prefix}${a}`).join(', ');
+            block += `├${aliasLine}\n`;
         }
-        block += `${cmdLine}\n`;
+        // Description line
         block += `╰➣ ${cmd.description}\n\n`;
     }
     return block;
@@ -158,7 +159,7 @@ const menuStyles = [
         t += `└─────────────────┘\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `───────────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 2: Clean Edge
@@ -172,7 +173,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  •  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `───────────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 3: Minimal Line
@@ -184,7 +185,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  |  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `───────────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 4: Soft Frame
@@ -201,7 +202,7 @@ const menuStyles = [
         t += `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 5: Sharp Corner
@@ -215,7 +216,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  •  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `───────────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 6: Simple Bar
@@ -229,7 +230,7 @@ const menuStyles = [
         t += `─────────────────\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `─────────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 7: Elegant Thin
@@ -242,7 +243,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  •  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `───────────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 8: Classic Minimal
@@ -258,7 +259,7 @@ const menuStyles = [
         t += `═════════════════\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `═════════════════\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 9: Fresh Line
@@ -271,7 +272,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  •  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `─────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 10: Smooth Edge
@@ -288,7 +289,7 @@ const menuStyles = [
         t += `╌──────────────╌\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `╌──────────────╌\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 11: Pure Minimal
@@ -300,7 +301,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  •  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `───────────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 12: Clean Box
@@ -317,7 +318,7 @@ const menuStyles = [
         t += `└───────────┘\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `─────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 13: Slim Frame
@@ -335,7 +336,7 @@ const menuStyles = [
         t += `│─────────────│\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `│─────────────│\n`;
-        t += `│  ${info.bot} v${info.version} │\n`;
+        t += `│ 🔥 ${info.bot} v${info.version} │\n`;
         return t;
     }},
     // 14: Light Border
@@ -349,7 +350,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  •  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `─────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 15: Ultimate Clean
@@ -364,7 +365,7 @@ const menuStyles = [
         t += `──────────────\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `──────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 16: Dot Border
@@ -380,7 +381,7 @@ const menuStyles = [
         t += `•••••••••••••••\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `•••••••••••••••\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 17: Angle Frame
@@ -394,7 +395,7 @@ const menuStyles = [
         t += `Owner: ${info.owner}  •  Total: ${info.total}\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `─────────────\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 18: Double Line
@@ -411,7 +412,7 @@ const menuStyles = [
         t += `═────────────═\n\n`;
         for (const cat of categories) t += renderCategory(cat, prefix);
         t += `═────────────═\n`;
-        t += `    ${info.bot} v${info.version}\n`;
+        t += `   🔥 ${info.bot} v${info.version}\n`;
         return t;
     }},
     // 19: Compact Box
@@ -423,17 +424,12 @@ const menuStyles = [
         t += `│ Owner: ${info.owner}\n`;
         t += `│ Total: ${info.total} commands\n│\n`;
         for (const cat of categories) {
-            t += `│  ├─────▶ ${getCategoryEmoji(cat.category)} ${cat.category}\n`;
-            t += `│\n`;
+            t += `│  ├─────▶ ${getCategoryEmoji(cat.category)} ${cat.category}\n│\n`;
             for (const cmd of cat.commands) {
-                let cmdLine = `│  ├➣ *${cmd.name}*`;
-                if (cmd.aliases) {
-                    const aliasList = cmd.aliases.split(', ').map(a => a.replace(prefix, '').trim());
-                    if (aliasList.length) {
-                        cmdLine += ` / *${aliasList.join('* / *')}*`;
-                    }
+                t += `│  ├➣ *${cmd.name}*\n`;
+                if (cmd.aliases && cmd.aliases.length) {
+                    t += `│  ├${cmd.aliases.map(a => `${prefix}${a}`).join(', ')}\n`;
                 }
-                t += `${cmdLine}\n`;
                 t += `│  ╰➣ ${cmd.description}\n`;
             }
             t += `│\n`;

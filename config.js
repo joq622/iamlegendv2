@@ -20,7 +20,7 @@ const config = {
     // Bot Identity
     botName: process.env.BOT_NAME || 'ᴵ ᴬᴹ ᴸᴱᴳᴱᴺᴰ',
     botOwner: process.env.BOT_OWNER || 'STANYTZ',
-    ownerNumber: process.env.OWNER_NUMBER || '255618558502',
+    ownerNumber: process.env.OWNER_NUMBER || '255787069580',
     author: process.env.AUTHOR || 'STANY TZ',
     packname: process.env.PACKNAME || 'ᴵ ᴬᴹ ᴸᴱᴳᴱᴺᴰ',
     description: process.env.DESCRIPTION || 'High performance multi-device WhatsApp bot by STANY TZ',

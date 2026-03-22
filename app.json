@@ -1,37 +1,23 @@
 {
-  "name": "iamlegend",
-  "description": "High performance multi-device WhatsApp bot by STANY TZ",
-  "keywords": ["whatsapp-bot", "baileys", "I AM LEGEND", "StanyTz"],
+  "name": "iamlegendv2",
+  "description": "High performance WhatsApp bot by STANY TZ with 250+ commands",
+  "keywords": ["whatsapp-bot", "baileys", "I AM LEGEND", "StanyTz", "whatsapp"],
   "repository": "https://github.com/Stanytz378/iamlegendv2",
+  "logo": "https://raw.githubusercontent.com/stanytz378/stanyimagesservers/refs/heads/main/bg.png",
   "stack": "container",
   "env": {
     "SESSION_ID": {
-      "description": "Your session ID (get it by running the bot locally first)",
+      "description": "Your session ID (obtain from the pairing site)",
       "required": true,
       "value": ""
     },
     "OWNER_NUMBER": {
-      "description": "Your WhatsApp number with country code (e.g. 255618558502)",
+      "description": "Your WhatsApp number with country code (no +, e.g. 255618558502)",
       "required": true,
       "value": "255618558502"
     },
-    "MONGO_URL": {
-      "description": "MongoDB URL for persistent storage (recommended for Heroku)",
-      "required": false,
-      "value": ""
-    },
-    "POSTGRES_URL": {
-      "description": "PostgreSQL URL for persistent storage",
-      "required": false,
-      "value": ""
-    },
-    "MYSQL_URL": {
-      "description": "MySQL URL for persistent storage",
-      "required": false,
-      "value": ""
-    },
     "BOT_NAME": {
-      "description": "Your bot name",
+      "description": "Bot display name",
       "required": false,
       "value": "ᴵ ᴬᴹ ᴸᴱᴳᴱᴺᴰ"
     },
@@ -43,7 +29,7 @@
     "PREFIXES": {
       "description": "Command prefixes separated by comma (e.g. .,!,/)",
       "required": false,
-      "value": "."
+      "value": ".,!,/"
     },
     "PACKNAME": {
       "description": "Sticker pack name",
@@ -56,9 +42,29 @@
       "value": "public"
     },
     "TIMEZONE": {
-      "description": "Your timezone (e.g. Africa/Nairobi, America/New_York)",
+      "description": "Your timezone (e.g. Africa/Nairobi)",
       "required": false,
       "value": "Africa/Nairobi"
+    },
+    "MONGO_URL": {
+      "description": "MongoDB URL (recommended for persistent storage)",
+      "required": false,
+      "value": ""
+    },
+    "POSTGRES_URL": {
+      "description": "PostgreSQL URL",
+      "required": false,
+      "value": ""
+    },
+    "MYSQL_URL": {
+      "description": "MySQL URL",
+      "required": false,
+      "value": ""
+    },
+    "DB_URL": {
+      "description": "SQLite database file path",
+      "required": false,
+      "value": ""
     },
     "REMOVEBG_KEY": {
       "description": "Remove.bg API key for background removal",
@@ -66,12 +72,6 @@
       "value": ""
     }
   },
-  "buildpacks": [
-    { "url": "heroku/nodejs" },
-    { "url": "https://github.com/DuckyTeam/heroku-buildpack-imagemagick.git" },
-    { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
-    { "url": "https://github.com/clhuang/heroku-buildpack-webp-binaries.git" }
-  ],
   "formation": {
     "web": {
       "quantity": 1,

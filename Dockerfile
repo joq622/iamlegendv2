@@ -1,8 +1,15 @@
-FROM node:20-slim
-RUN apt-get update && apt-get install -y ffmpeg libvips-dev libwebp-dev git
+FROM node:lts-bookworm
+
+# Install tzdata – ensures timezone support
+RUN apt-get update && apt-get install -y tzdata && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-EXPOSE 5000
-CMD ["npm", "run", "start:optimized"]
+
+# Clone IAMLEGEND repo
+RUN git clone https://github.com/Stanytz378/iamlegendv2 . && \
+    npm install
+
+EXPOSE 3000
+
+CMD ["npm", "start"]

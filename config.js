@@ -19,8 +19,8 @@ const _prefixes = process.env.PREFIXES ? process.env.PREFIXES.split(',') : ['.',
 const config = {
     // Bot Identity
     botName: process.env.BOT_NAME || 'ᴵ ᴬᴹ ᴸᴱᴳᴱᴺᴰ',
-    botOwner: process.env.BOT_OWNER || 'STANYTZ',
-    ownerNumber: process.env.OWNER_NUMBER || '255787069580',
+    botOwner: process.env.BOT_OWNER || 'JOQUER',
+    ownerNumber: process.env.OWNER_NUMBER || '255797618361',
     author: process.env.AUTHOR || 'STANY TZ',
     packname: process.env.PACKNAME || 'ᴵ ᴬᴹ ᴸᴱᴳᴱᴺᴰ',
     description: process.env.DESCRIPTION || 'High performance multi-device WhatsApp bot by STANY TZ',
@@ -38,8 +38,8 @@ const config = {
     ytChannel: process.env.YT_CHANNEL || 'STANY TZ',
 
     // Session
-    sessionId: process.env.SESSION_ID || '',
-    pairingNumber: process.env.PAIRING_NUMBER || '',
+    sessionId: process.env.SESSION_ID |Stanytz378/iamlegendv2_r05CiEN3| '',
+    pairingNumber: process.env.PAIRING_NUMBER |255797618361| '',
 
     // Performance
     port: Number(process.env.PORT) || 5000,
